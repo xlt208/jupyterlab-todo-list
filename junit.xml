@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="jest tests" tests="1" failures="0" errors="0" time="1.208">
+  <testsuite name="jupyterlab-todo-list" errors="0" failures="0" skipped="0" timestamp="2025-11-13T04:22:55" time="0.595" tests="1">
+    <testcase classname="jupyterlab-todo-list should be tested" name="jupyterlab-todo-list should be tested" time="0.001">
+    </testcase>
+  </testsuite>
+</testsuites>

@@ -1,0 +1,16 @@
+# Changes here will be overwritten by Copier; NEVER EDIT MANUALLY
+_commit: v4.5.0
+_src_path: https://github.com/jupyterlab/extension-template
+author_email: lingtao.xie0@gmail.com
+author_name: xlt208
+has_ai_rules: false
+has_binder: false
+has_settings: true
+kind: frontend
+labextension_name: jupyterlab-todo-list
+project_short_description: A JupyterLab side panel for to-dos with checkbox import
+    from notebooks.
+python_name: jupyterlab_todo_list
+repository: https://github.com/xlt208/jupyterlab-todo-list
+test: true
+

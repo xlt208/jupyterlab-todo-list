@@ -1,0 +1,57 @@
+/* @import url('base.css'); */
+
+.jp-TodoListIcon {
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" stroke="none" class="jp-icon3" data-icon="notebook"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" stroke="var(--jp-icon-contrast-color0)" fill="none" stroke-width="2px"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1" stroke="var(--jp-icon-contrast-color0)" fill="none" stroke-width="2px"></rect><path d="m9 14 2 2 4-4" fill="none" stroke="var(--jp-icon-contrast-color0)" stroke-width="2px" stroke-linecap="round" stroke-linejoin="round"></path></svg>');
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.jp-TodoApp {
+  padding: 12px;
+  font-family: var(--jp-ui-font-family);
+}
+
+.jp-TodoApp-title {
+  margin: 0 0 8px;
+  font-size: var(--jp-ui-font-size2);
+  font-weight: 600;
+}
+
+.jp-TodoApp-inputRow {
+  display: flex;
+  gap: 8px;
+  margin: 0;
+}
+
+.jp-TodoApp-input {
+  flex: 1;
+}
+
+.jp-TodoApp-list {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0 0;
+}
+
+.jp-TodoApp-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+}
+
+.jp-TodoApp-itemLabel {
+  flex: 1;
+  cursor: pointer;
+}
+
+.jp-TodoApp-itemLabel.is-done {
+  text-decoration: line-through;
+  color: var(--jp-ui-font-color2);
+}
+
+.jp-TodoApp-empty {
+  margin-top: 12px;
+  color: var(--jp-ui-font-color2);
+  font-size: var(--jp-ui-font-size1);
+}

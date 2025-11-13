@@ -1,0 +1,8 @@
+{
+  "jupyter.lab.shortcuts": [],
+  "title": "jupyterlab-todo-list",
+  "description": "jupyterlab-todo-list settings.",
+  "type": "object",
+  "properties": {},
+  "additionalProperties": false
+}
