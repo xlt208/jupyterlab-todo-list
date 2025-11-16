@@ -45,7 +45,19 @@
   cursor: pointer;
 }
 
-.jp-TodoApp-item.is-done .jp-TodoApp-itemLabel {
+.jp-TodoApp-editForm {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+}
+
+.jp-TodoApp-editInput {
+  flex: 1;
+}
+
+.jp-TodoApp-item.is-done .jp-TodoApp-itemLabel,
+.jp-TodoApp-itemLabel.is-done {
   text-decoration: line-through;
   color: var(--jp-ui-font-color2);
 }
