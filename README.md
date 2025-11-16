@@ -1,8 +1,8 @@
 # jupyterlab_todo_list
 
-[![Github Actions Status](https://github.com/xlt208/jupyterlab-todo-list/workflows/Build/badge.svg)](https://github.com/xlt208/jupyterlab-todo-list/actions/workflows/build.yml)
+[![Build Status](https://github.com/xlt208/jupyterlab-todo-list/workflows/Build/badge.svg)](https://github.com/xlt208/jupyterlab-todo-list/actions/workflows/build.yml)
 
-A JupyterLab side panel for to-dos with checkbox import from notebooks.
+Keep lightweight to-dos inside JupyterLab. This extension adds a persistent side panel that lets you add, check off, and delete tasks while working in notebooks. Items are cached locally and synced to a small REST endpoint so they follow you between sessions.
 
 ## Requirements
 
@@ -10,15 +10,21 @@ A JupyterLab side panel for to-dos with checkbox import from notebooks.
 
 ## Install
 
-To install the extension, execute:
-
 ```bash
 pip install jupyterlab_todo_list
 ```
 
-## Uninstall
+This installs both the Python server extension (for storing todos under your Jupyter data directory) and the prebuilt frontend bundle.
 
-To remove the extension, execute:
+## Use
+
+1. Launch JupyterLab.
+2. Open the command palette or launcher and run **Open To-Do List**.
+3. Add tasks in the left side panel. Items are saved automatically.
+
+The panel reopens on the next Lab session and restores your last task list.
+
+## Uninstall
 
 ```bash
 pip uninstall jupyterlab_todo_list
@@ -28,76 +34,37 @@ pip uninstall jupyterlab_todo_list
 
 ### Development install
 
-Note: You will need NodeJS to build the extension package.
-
-The `jlpm` command is JupyterLab's pinned version of
-[yarn](https://yarnpkg.com/) that is installed with JupyterLab. You may use
-`yarn` or `npm` in lieu of `jlpm` below.
+The `jlpm` command is JupyterLab's pinned version of [Yarn](https://yarnpkg.com/) and is already bundled with Lab. NodeJS (>=18) must be available on your PATH.
 
 ```bash
-# Clone the repo to your local environment
-# Change directory to the jupyterlab_todo_list directory
+git clone https://github.com/xlt208/jupyterlab-todo-list.git
+cd jupyterlab_todo_list
 
-# Set up a virtual environment and install package in development mode
 python -m venv .venv
 source .venv/bin/activate
-pip install --editable "."
+pip install --editable ".[test]"
 
-# Link your development version of the extension with JupyterLab
-jupyter labextension develop . --overwrite
-
-# Rebuild extension Typescript source after making changes
-# IMPORTANT: Unlike the steps above which are performed only once, do this step
-# every time you make a change.
+jlpm install
 jlpm build
+jupyter labextension develop . --overwrite
 ```
 
-You can watch the source directory and run JupyterLab at the same time in different terminals to watch for changes in the extension's source and automatically rebuild the extension.
+During development you can keep the TS build and Lab running in watch mode:
 
 ```bash
-# Watch the source directory in one terminal, automatically rebuilding when needed
-jlpm watch
-# Run JupyterLab in another terminal
-jupyter lab
+jlpm watch   # terminal 1
+jupyter lab  # terminal 2
 ```
 
-With the watch command running, every saved change will immediately be built locally and available in your running JupyterLab. Refresh JupyterLab to load the change in your browser (you may need to wait several seconds for the extension to be rebuilt).
-
-By default, the `jlpm build` command generates the source maps for this extension to make it easier to debug using the browser dev tools. To also generate source maps for the JupyterLab core extensions, you can run the following command:
-
-```bash
-jupyter lab build --minimize=False
-```
-
-### Development uninstall
-
-```bash
-pip uninstall jupyterlab_todo_list
-```
-
-In development mode, you will also need to remove the symlink created by `jupyter labextension develop`
-command. To find its location, you can run `jupyter labextension list` to figure out where the `labextensions`
-folder is located. Then you can remove the symlink named `jupyterlab-todo-list` within that folder.
+To undo the editable install run `pip uninstall jupyterlab_todo_list` and remove the `jupyterlab-todo-list` symlink reported by `jupyter labextension list`.
 
 ### Testing the extension
 
-#### Frontend tests
-
-This extension is using [Jest](https://jestjs.io/) for JavaScript code testing.
-
-To execute them, execute:
-
-```sh
-jlpm
-jlpm test
+```bash
+jlpm test          # Jest unit tests
+jlpm lint:check    # prettier + eslint + stylelint
+jlpm playwright test # UI tests (see ui-tests/README.md for setup)
 ```
-
-#### Integration tests
-
-This extension uses [Playwright](https://playwright.dev/docs/intro) for the integration tests (aka user level tests).
-More precisely, the JupyterLab helper [Galata](https://github.com/jupyterlab/jupyterlab/tree/master/galata) is used to handle testing the extension in JupyterLab.
-
-More information are provided within the [ui-tests](./ui-tests/README.md) README.
 
 ### Packaging the extension
 
