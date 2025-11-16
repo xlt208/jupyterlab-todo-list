@@ -9,6 +9,10 @@
 .jp-TodoApp {
   padding: 12px;
   font-family: var(--jp-ui-font-family);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  box-sizing: border-box;
 }
 
 .jp-TodoApp-title {
@@ -31,6 +35,9 @@
   list-style: none;
   padding: 0;
   margin: 12px 0 0;
+  overflow-y: auto;
+  flex: 1 1 auto;
+  min-height: 0;
 }
 
 .jp-TodoApp-item {
@@ -42,12 +49,31 @@
 
 .jp-TodoApp-itemLabel {
   flex: 1;
+  min-width: 0;
   cursor: pointer;
+  word-break: break-word;
 }
 
+.jp-TodoApp-editForm {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+}
+
+.jp-TodoApp-editInput {
+  flex: 1;
+}
+
+.jp-TodoApp-item.is-done .jp-TodoApp-itemLabel,
 .jp-TodoApp-itemLabel.is-done {
   text-decoration: line-through;
   color: var(--jp-ui-font-color2);
+}
+
+.jp-TodoApp-item .jp-Button {
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
 .jp-TodoApp-empty {
