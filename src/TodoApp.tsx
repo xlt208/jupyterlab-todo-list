@@ -99,11 +99,12 @@ export function TodoApp({ loadTodos, saveTodos }: ITodoAppProps) {
         <ul className="jp-TodoApp-list">
           {items.map(item => {
             const checkboxId = `todo-item-${item.id}`;
+            const itemClass = `jp-TodoApp-item${item.done ? ' is-done' : ''}`;
             const labelClass = `jp-TodoApp-itemLabel${
               item.done ? ' is-done' : ''
             }`;
             return (
-              <li key={item.id} className="jp-TodoApp-item">
+              <li key={item.id} className={itemClass}>
                 <input
                   id={checkboxId}
                   type="checkbox"

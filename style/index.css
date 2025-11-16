@@ -45,7 +45,7 @@
   cursor: pointer;
 }
 
-.jp-TodoApp-itemLabel.is-done {
+.jp-TodoApp-item.is-done .jp-TodoApp-itemLabel {
   text-decoration: line-through;
   color: var(--jp-ui-font-color2);
 }
