@@ -9,6 +9,10 @@
 .jp-TodoApp {
   padding: 12px;
   font-family: var(--jp-ui-font-family);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  box-sizing: border-box;
 }
 
 .jp-TodoApp-title {
@@ -31,6 +35,9 @@
   list-style: none;
   padding: 0;
   margin: 12px 0 0;
+  overflow-y: auto;
+  flex: 1 1 auto;
+  min-height: 0;
 }
 
 .jp-TodoApp-item {
