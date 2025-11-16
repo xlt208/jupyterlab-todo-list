@@ -1,7 +1,12 @@
 import * as React from 'react';
 import { logDebug, logError } from './logging';
 
-export type Todo = { id: string; text: string; done: boolean };
+export type Todo = {
+  id: string;
+  text: string;
+  done: boolean;
+  completedAt?: number;
+};
 
 export interface ITodoAppProps {
   loadTodos: () => Promise<Todo[]>;
@@ -57,9 +62,26 @@ export function TodoApp({ loadTodos, saveTodos }: ITodoAppProps) {
   }, [text]);
 
   const toggle = React.useCallback((id: string) => {
-    setItems(prev =>
-      prev.map(item => (item.id === id ? { ...item, done: !item.done } : item))
-    );
+    setItems(prev => {
+      const next = prev.map(item => {
+        if (item.id !== id) {
+          return item;
+        }
+        const done = !item.done;
+        return {
+          ...item,
+          done,
+          completedAt: done ? Date.now() : undefined
+        };
+      });
+      const pending = next.filter(item => !item.done);
+      const completed = next
+        .filter(item => item.done)
+        .sort(
+          (a, b) => (b.completedAt ?? 0) - (a.completedAt ?? 0)
+        );
+      return [...pending, ...completed];
+    });
   }, []);
 
   const remove = React.useCallback((id: string) => {
