@@ -49,7 +49,9 @@
 
 .jp-TodoApp-itemLabel {
   flex: 1;
+  min-width: 0;
   cursor: pointer;
+  word-break: break-word;
 }
 
 .jp-TodoApp-editForm {
@@ -67,6 +69,11 @@
 .jp-TodoApp-itemLabel.is-done {
   text-decoration: line-through;
   color: var(--jp-ui-font-color2);
+}
+
+.jp-TodoApp-item .jp-Button {
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
 .jp-TodoApp-empty {
