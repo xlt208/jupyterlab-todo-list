@@ -79,9 +79,7 @@ export function TodoApp({ loadTodos, saveTodos }: ITodoAppProps) {
       const pending = next.filter(item => !item.done);
       const completed = next
         .filter(item => item.done)
-        .sort(
-          (a, b) => (b.completedAt ?? 0) - (a.completedAt ?? 0)
-        );
+        .sort((a, b) => (b.completedAt ?? 0) - (a.completedAt ?? 0));
       return [...pending, ...completed];
     });
   }, []);
