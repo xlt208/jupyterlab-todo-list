@@ -155,7 +155,7 @@ export function TodoApp({ loadTodos, saveTodos }: ITodoAppProps) {
 
   return (
     <div className="jp-TodoApp">
-      <h3 className="jp-TodoApp-title">To-Do</h3>
+      <h3 className="jp-TodoApp-title">To-Do List</h3>
       <form className="jp-TodoApp-inputRow" onSubmit={handleSubmit}>
         <input
           aria-label="New task"
