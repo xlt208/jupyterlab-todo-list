@@ -1,5 +1,9 @@
 # Changelog
 
+<!-- <START NEW CHANGELOG ENTRY> -->
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 0.2.0
 
 - Added inline editing for pending tasks.
