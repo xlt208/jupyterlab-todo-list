@@ -1,7 +1,12 @@
 import * as React from 'react';
 import { logDebug, logError } from './logging';
 
-export type Todo = { id: string; text: string; done: boolean };
+export type Todo = {
+  id: string;
+  text: string;
+  done: boolean;
+  completedAt?: number;
+};
 
 export interface ITodoAppProps {
   loadTodos: () => Promise<Todo[]>;
@@ -12,6 +17,8 @@ export function TodoApp({ loadTodos, saveTodos }: ITodoAppProps) {
   const [items, setItems] = React.useState<Todo[]>([]);
   const [text, setText] = React.useState('');
   const [initialized, setInitialized] = React.useState(false);
+  const [editingId, setEditingId] = React.useState<string | null>(null);
+  const [editText, setEditText] = React.useState('');
 
   React.useEffect(() => {
     let cancelled = false;
@@ -57,14 +64,84 @@ export function TodoApp({ loadTodos, saveTodos }: ITodoAppProps) {
   }, [text]);
 
   const toggle = React.useCallback((id: string) => {
-    setItems(prev =>
-      prev.map(item => (item.id === id ? { ...item, done: !item.done } : item))
-    );
+    setItems(prev => {
+      const next = prev.map(item => {
+        if (item.id !== id) {
+          return item;
+        }
+        const done = !item.done;
+        return {
+          ...item,
+          done,
+          completedAt: done ? Date.now() : undefined
+        };
+      });
+      const pending = next.filter(item => !item.done);
+      const completed = next
+        .filter(item => item.done)
+        .sort((a, b) => (b.completedAt ?? 0) - (a.completedAt ?? 0));
+      return [...pending, ...completed];
+    });
   }, []);
 
   const remove = React.useCallback((id: string) => {
     setItems(prev => prev.filter(item => item.id !== id));
   }, []);
+
+  const startEdit = React.useCallback((todo: Todo) => {
+    if (todo.done) {
+      return;
+    }
+    setEditingId(todo.id);
+    setEditText(todo.text);
+  }, []);
+
+  const cancelEdit = React.useCallback(() => {
+    setEditingId(null);
+    setEditText('');
+  }, []);
+
+  const handleEditChange = React.useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      setEditText(event.target.value);
+    },
+    []
+  );
+
+  const submitEdit = React.useCallback(() => {
+    if (!editingId) {
+      return;
+    }
+    const trimmed = editText.trim();
+    if (!trimmed) {
+      cancelEdit();
+      return;
+    }
+    setItems(prev =>
+      prev.map(item =>
+        item.id === editingId ? { ...item, text: trimmed } : item
+      )
+    );
+    cancelEdit();
+  }, [cancelEdit, editText, editingId]);
+
+  const handleEditKeyDown = React.useCallback(
+    (event: React.KeyboardEvent<HTMLInputElement>) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        cancelEdit();
+      }
+    },
+    [cancelEdit]
+  );
+
+  const handleEditSubmit = React.useCallback(
+    (event: React.FormEvent<HTMLFormElement>) => {
+      event.preventDefault();
+      submitEdit();
+    },
+    [submitEdit]
+  );
 
   const handleSubmit = React.useCallback(
     (event: React.FormEvent<HTMLFormElement>) => {
@@ -78,7 +155,7 @@ export function TodoApp({ loadTodos, saveTodos }: ITodoAppProps) {
 
   return (
     <div className="jp-TodoApp">
-      <h3 className="jp-TodoApp-title">To-Do</h3>
+      <h3 className="jp-TodoApp-title">To-Do List</h3>
       <form className="jp-TodoApp-inputRow" onSubmit={handleSubmit}>
         <input
           aria-label="New task"
@@ -99,20 +176,60 @@ export function TodoApp({ loadTodos, saveTodos }: ITodoAppProps) {
         <ul className="jp-TodoApp-list">
           {items.map(item => {
             const checkboxId = `todo-item-${item.id}`;
+            const itemClass = `jp-TodoApp-item${item.done ? ' is-done' : ''}`;
             const labelClass = `jp-TodoApp-itemLabel${
               item.done ? ' is-done' : ''
             }`;
+            const isEditing = editingId === item.id;
             return (
-              <li key={item.id} className="jp-TodoApp-item">
+              <li key={item.id} className={itemClass}>
                 <input
                   id={checkboxId}
                   type="checkbox"
                   checked={item.done}
+                  disabled={isEditing}
                   onChange={() => toggle(item.id)}
                 />
-                <label htmlFor={checkboxId} className={labelClass}>
-                  {item.text}
-                </label>
+                {isEditing ? (
+                  <form
+                    className="jp-TodoApp-editForm"
+                    onSubmit={handleEditSubmit}
+                  >
+                    <input
+                      value={editText}
+                      onChange={handleEditChange}
+                      onKeyDown={handleEditKeyDown}
+                      autoFocus
+                      aria-label={`Rename ${item.text}`}
+                      className="jp-TodoApp-input jp-TodoApp-editInput"
+                    />
+                    <button type="submit" className="jp-Button jp-mod-accept">
+                      Save
+                    </button>
+                    <button
+                      type="button"
+                      className="jp-Button"
+                      onClick={cancelEdit}
+                    >
+                      Cancel
+                    </button>
+                  </form>
+                ) : (
+                  <>
+                    <label htmlFor={checkboxId} className={labelClass}>
+                      {item.text}
+                    </label>
+                    {!item.done && (
+                      <button
+                        type="button"
+                        className="jp-Button jp-mod-minimal"
+                        onClick={() => startEdit(item)}
+                      >
+                        Edit
+                      </button>
+                    )}
+                  </>
+                )}
                 <button
                   type="button"
                   onClick={() => remove(item.id)}

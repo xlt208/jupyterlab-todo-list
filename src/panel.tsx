@@ -35,7 +35,7 @@ export class TodoPanel extends Widget {
   constructor(options: TodoPanel.IOptions) {
     super();
     this.id = 'jlab-todo-panel';
-    this.title.label = 'To-Do';
+    this.title.label = 'To-Do List';
     this.title.icon = todoIcon;
     this.title.closable = true;
     this.addClass('jp-TodoPanel');

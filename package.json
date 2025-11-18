@@ -1,6 +1,6 @@
 {
     "name": "jupyterlab-todo-list",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "description": "A JupyterLab side panel for to-dos with checkbox import from notebooks.",
     "keywords": [
         "jupyter",
