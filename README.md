@@ -1,6 +1,6 @@
 # jupyterlab_todo_list
 
-[![Build Status](https://github.com/xlt208/jupyterlab-todo-list/workflows/Build/badge.svg)](https://github.com/xlt208/jupyterlab-todo-list/actions/workflows/build.yml)
+[![Build Status](https://github.com/xlt208/jupyterlab-todo-list/actions/workflows/build.yml/badge.svg)](https://github.com/xlt208/jupyterlab-todo-list/actions/workflows/build.yml)
 
 Keep lightweight to-dos inside JupyterLab. This extension adds a persistent side panel that lets you add, check off, and delete tasks while working in notebooks. Items are cached locally and synced to a small REST endpoint so they follow you between sessions.
 
