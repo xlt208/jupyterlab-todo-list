@@ -2,6 +2,10 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 0.3.0
+
+- Bundled a `jupyter_server_config.d` snippet so the REST handler is auto-registered after install—no manual server config step required.
+
 <!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 0.2.0
