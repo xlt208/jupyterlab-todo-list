@@ -1,4 +1,3 @@
-
 # jupyterlab_todo_list
 
 [![Build Status](https://github.com/xlt208/jupyterlab-todo-list/actions/workflows/build.yml/badge.svg)](https://github.com/xlt208/jupyterlab-todo-list/actions/workflows/build.yml)
