@@ -40,6 +40,7 @@ exclude = [".github", "binder"]
 [tool.hatch.build.targets.wheel.shared-data]
 "jupyterlab_todo_list/labextension" = "share/jupyter/labextensions/jupyterlab-todo-list"
 "install.json" = "share/jupyter/labextensions/jupyterlab-todo-list/install.json"
+"jupyter-config/jupyter_server_config.d/jupyterlab_todo_list.json" = "etc/jupyter/jupyter_server_config.d/jupyterlab_todo_list.json"
 
 [tool.hatch.build.hooks.version]
 path = "jupyterlab_todo_list/_version.py"

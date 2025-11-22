@@ -1,6 +1,6 @@
 # jupyterlab_todo_list
 
-[![Build Status](https://github.com/xlt208/jupyterlab-todo-list/workflows/Build/badge.svg)](https://github.com/xlt208/jupyterlab-todo-list/actions/workflows/build.yml)
+[![Build Status](https://github.com/xlt208/jupyterlab-todo-list/actions/workflows/build.yml/badge.svg)](https://github.com/xlt208/jupyterlab-todo-list/actions/workflows/build.yml)
 
 Keep lightweight to-dos inside JupyterLab. This extension adds a persistent side panel that lets you add, check off, and delete tasks while working in notebooks. Items are cached locally and synced to a small REST endpoint so they follow you between sessions.
 
@@ -14,7 +14,7 @@ Keep lightweight to-dos inside JupyterLab. This extension adds a persistent side
 pip install jupyterlab_todo_list
 ```
 
-This installs both the Python server extension (for storing todos under your Jupyter data directory) and the prebuilt frontend bundle.
+The Python package is published on PyPI, and the labextension bundle is on npm as `@xlt208/jupyterlab-todo-list` for anyone integrating it into custom builds. A normal `pip install` brings in the Python backend plus the bundled frontend automatically—no extra npm step required.
 
 ## Use
 
