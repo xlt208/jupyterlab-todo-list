@@ -146,7 +146,10 @@ export class TodoPanel extends Widget {
       return base;
     }
     const query = Object.entries(params)
-      .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
+      .map(
+        ([key, value]) =>
+          `${encodeURIComponent(key)}=${encodeURIComponent(value)}`
+      )
       .join('&');
     return `${base}?${query}`;
   }
