@@ -5,6 +5,7 @@ import {
 } from '@jupyterlab/application';
 import { ICommandPalette, WidgetTracker } from '@jupyterlab/apputils';
 import { IStateDB } from '@jupyterlab/statedb';
+import { ISettingRegistry } from '@jupyterlab/settingregistry';
 import { logDebug, logError, logInfo, logWarn } from './logging';
 import type { TodoPanel } from './panel';
 
@@ -19,12 +20,13 @@ const plugin: JupyterFrontEndPlugin<void> = {
   description:
     'A JupyterLab side panel for to-dos with checkbox import from notebooks.',
   autoStart: true,
-  requires: [ICommandPalette, ILayoutRestorer, IStateDB],
+  requires: [ICommandPalette, ILayoutRestorer, IStateDB, ISettingRegistry],
   activate: async (
     app: JupyterFrontEnd,
     palette: ICommandPalette,
     restorer: ILayoutRestorer,
-    state: IStateDB
+    state: IStateDB,
+    settingRegistry: ISettingRegistry
   ) => {
     const { shell, commands } = app;
     const serverSettings = app.serviceManager.serverSettings;
@@ -35,18 +37,35 @@ const plugin: JupyterFrontEndPlugin<void> = {
     const { todoIcon, TodoPanel } = panelModule;
     logDebug('imported panel module');
 
+    const settings = await settingRegistry.load(PLUGIN_ID);
+
     const tracker = new WidgetTracker<TodoPanel>({
       namespace: 'jlab-todo'
     });
 
     let panel: TodoPanel | null = null;
+    let showNotebookTodos = getShowNotebookSetting();
+
+    function getShowNotebookSetting(): boolean {
+      const composite = settings.get('showNotebookTodos').composite;
+      return typeof composite === 'boolean' ? composite : true;
+    }
+
+    function applySettings(): void {
+      showNotebookTodos = getShowNotebookSetting();
+      if (panel && !panel.isDisposed) {
+        panel.setShowNotebookTodos(showNotebookTodos);
+      }
+    }
+    settings.changed.connect(applySettings);
 
     function ensurePanel(): TodoPanel {
       if (!panel || panel.isDisposed) {
         panel = new TodoPanel({
           state,
           storageKey: TODO_STATE_KEY,
-          serverSettings
+          serverSettings,
+          showNotebookTodos
         });
         void tracker.add(panel);
       }

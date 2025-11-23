@@ -20,9 +20,14 @@ export type Todo = {
 export interface ITodoAppProps {
   loadTodos: () => Promise<Todo[]>;
   saveTodos: (todos: Todo[]) => Promise<void>;
+  showNotebookTodos: boolean;
 }
 
-export function TodoApp({ loadTodos, saveTodos }: ITodoAppProps) {
+export function TodoApp({
+  loadTodos,
+  saveTodos,
+  showNotebookTodos
+}: ITodoAppProps) {
   const [items, setItems] = React.useState<Todo[]>([]);
   const [text, setText] = React.useState('');
   const [initialized, setInitialized] = React.useState(false);
@@ -174,7 +179,15 @@ export function TodoApp({ loadTodos, saveTodos }: ITodoAppProps) {
     }
   }, [loadTodos]);
 
-  const hasItems = items.length > 0;
+  const visibleItems = React.useMemo(
+    () =>
+      showNotebookTodos
+        ? items
+        : items.filter(item => item.source !== 'notebook'),
+    [items, showNotebookTodos]
+  );
+
+  const hasItems = visibleItems.length > 0;
 
   return (
     <div className="jp-TodoApp">
@@ -184,9 +197,12 @@ export function TodoApp({ loadTodos, saveTodos }: ITodoAppProps) {
           type="button"
           className="jp-Button jp-mod-minimal jp-TodoApp-refreshButton"
           onClick={refresh}
-          disabled={refreshing}
+          disabled={showNotebookTodos ? refreshing : true}
           aria-label="Refresh"
           title="refresh"
+          aria-hidden={showNotebookTodos ? undefined : true}
+          tabIndex={showNotebookTodos ? 0 : -1}
+          style={{ visibility: showNotebookTodos ? 'visible' : 'hidden' }}
         >
           <RefreshIcon />
         </button>
@@ -209,7 +225,7 @@ export function TodoApp({ loadTodos, saveTodos }: ITodoAppProps) {
         </p>
       ) : (
         <ul className="jp-TodoApp-list">
-          {items.map(item => {
+          {visibleItems.map(item => {
             const checkboxId = `todo-item-${item.id}`;
             const isNotebookTodo = item.source === 'notebook';
             const itemClass = `jp-TodoApp-item${item.done ? ' is-done' : ''}${

@@ -22,6 +22,7 @@ export namespace TodoPanel {
     state: IStateDB;
     storageKey: string;
     serverSettings: ServerConnection.ISettings;
+    showNotebookTodos: boolean;
   }
 }
 
@@ -31,6 +32,7 @@ export class TodoPanel extends Widget {
   private _storageKey: string;
   private _serverSettings: ServerConnection.ISettings;
   private _endpointMissing = false;
+  private _showNotebookTodos: boolean;
 
   constructor(options: TodoPanel.IOptions) {
     super();
@@ -42,13 +44,12 @@ export class TodoPanel extends Widget {
     this._state = options.state;
     this._storageKey = options.storageKey;
     this._serverSettings = options.serverSettings;
+    this._showNotebookTodos = options.showNotebookTodos;
   }
 
   onAfterAttach(): void {
     this._root = createRoot(this.node);
-    this._root.render(
-      <TodoApp loadTodos={this._loadTodos} saveTodos={this._saveTodos} />
-    );
+    this._renderApp();
     logDebug('panel module attached');
   }
 
@@ -152,5 +153,23 @@ export class TodoPanel extends Widget {
 
   private _filterManualTodos(todos: Todo[]): Todo[] {
     return todos.filter(todo => todo.source !== 'notebook');
+  }
+
+  setShowNotebookTodos(showNotebookTodos: boolean): void {
+    if (this._showNotebookTodos === showNotebookTodos) {
+      return;
+    }
+    this._showNotebookTodos = showNotebookTodos;
+    this._renderApp();
+  }
+
+  private _renderApp(): void {
+    this._root?.render(
+      <TodoApp
+        loadTodos={this._loadTodos}
+        saveTodos={this._saveTodos}
+        showNotebookTodos={this._showNotebookTodos}
+      />
+    );
   }
 }
