@@ -10,16 +10,16 @@ from jupyter_server.base.handlers import APIHandler
 from jupyter_server.utils import url_path_join
 from tornado import web
 
-from .notebook_todos import collect_notebook_todos
+from .notebook_todos import NotebookTodoCache
 
 class TodoItemsHandler(APIHandler):
     """REST handler that persists todo items to disk."""
 
     def initialize(  # type: ignore[override]
-        self, storage_path: str, root_dir: str
+        self, storage_path: str, todo_cache: NotebookTodoCache
     ) -> None:
         self._storage_path = storage_path
-        self._root_dir = root_dir
+        self._todo_cache = todo_cache
 
     def _ensure_storage_dir(self) -> None:
         directory = os.path.dirname(self._storage_path)
@@ -47,7 +47,7 @@ class TodoItemsHandler(APIHandler):
     async def get(self) -> None:
         """Return the stored todo items."""
         manual_items = self._filter_manual(self._read_items())
-        notebook_items = collect_notebook_todos(self._root_dir, self.log)
+        notebook_items = await self._todo_cache.get_items()
         items = manual_items + notebook_items
         self.finish({"items": items})
 
@@ -85,9 +85,13 @@ def setup_handlers(server_app) -> None:
     storage_path = os.path.join(storage_dir, "items.json")
 
     root_dir = server_app.contents_manager.root_dir  # type: ignore[attr-defined]
+    todo_cache = NotebookTodoCache(root_dir, server_app.log)
     route_pattern = url_path_join(base_url, "jlab-todo", "items")
-    handlers = [(route_pattern, TodoItemsHandler,
-                 {"storage_path": storage_path, "root_dir": root_dir})]
+    handlers = [(
+        route_pattern,
+        TodoItemsHandler,
+        {"storage_path": storage_path, "todo_cache": todo_cache},
+    )]
     web_app.add_handlers(".*$", handlers)
     server_app.log.info(
         "Registered jupyterlab-todo-list handlers with storage at %s", storage_path

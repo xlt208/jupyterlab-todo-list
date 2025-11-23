@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 import json
+import asyncio
 from pathlib import Path
 
-from jupyterlab_todo_list.notebook_todos import collect_notebook_todos
+from jupyterlab_todo_list.notebook_todos import NotebookTodoCache, collect_notebook_todos
 
 
 def _write_notebook(path: Path, lines: list[str]) -> None:
@@ -50,3 +51,39 @@ def test_skips_checkpoints_and_non_matches(tmp_path: Path) -> None:
 
     assert len(todos) == 1
     assert todos[0]["originPath"] == "Another.ipynb"
+
+
+def test_cache_reuses_recent_scan(tmp_path: Path) -> None:
+    nb_path = tmp_path / "Notebook.ipynb"
+
+    async def scenario() -> None:
+        _write_notebook(nb_path, ["# TODO: keep me\n"])
+        cache = NotebookTodoCache(str(tmp_path), ttl_seconds=60)
+
+        first = await cache.get_items()
+        assert len(first) == 1
+
+        _write_notebook(nb_path, ["print('done')\n"])
+        second = await cache.get_items()
+
+        assert second == first
+
+    asyncio.run(scenario())
+
+
+def test_cache_refreshes_after_ttl(tmp_path: Path) -> None:
+    nb_path = tmp_path / "Notebook.ipynb"
+
+    async def scenario() -> None:
+        _write_notebook(nb_path, ["# TODO: first\n"])
+        cache = NotebookTodoCache(str(tmp_path), ttl_seconds=0.05)
+
+        await cache.get_items()
+
+        _write_notebook(nb_path, ["# TODO: second\n"])
+        await asyncio.sleep(0.06)
+
+        refreshed = await cache.get_items()
+        assert refreshed[0]["text"] == "second"
+
+    asyncio.run(scenario())

@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
+import asyncio
 import json
 import os
 import re
+import time
 from typing import Any, Dict, Iterable, List, Optional
 
 from logging import Logger
@@ -100,3 +102,49 @@ def collect_notebook_todos(
     for notebook_path in _iter_notebooks(root_dir):
         todos.extend(_extract_from_notebook(notebook_path, root_dir, logger))
     return todos
+
+
+class NotebookTodoCache:
+    """Async helper that caches notebook TODO scans for a short window."""
+
+    def __init__(
+        self,
+        root_dir: str,
+        logger: Optional[Logger] = None,
+        *,
+        ttl_seconds: float = 5.0,
+    ) -> None:
+        self._root_dir = root_dir
+        self._logger = logger
+        self._ttl = ttl_seconds
+        self._cache: List[Dict[str, Any]] = []
+        self._last_refresh = 0.0
+        self._refresh_future: Optional[asyncio.Future[List[Dict[str, Any]]]] = None
+        self._lock = asyncio.Lock()
+
+    async def get_items(self) -> List[Dict[str, Any]]:
+        """Return cached notebook TODOs, refreshing in a thread if needed."""
+
+        async with self._lock:
+            now = time.monotonic()
+            if self._cache and now - self._last_refresh < self._ttl:
+                return list(self._cache)
+
+            future = self._refresh_future
+            if future is None:
+                loop = asyncio.get_running_loop()
+                future = asyncio.ensure_future(
+                    loop.run_in_executor(
+                        None, collect_notebook_todos, self._root_dir, self._logger
+                    )
+                )
+                self._refresh_future = future
+
+        result = await future
+
+        async with self._lock:
+            if self._refresh_future is future:
+                self._cache = result
+                self._last_refresh = time.monotonic()
+                self._refresh_future = None
+            return list(self._cache)
