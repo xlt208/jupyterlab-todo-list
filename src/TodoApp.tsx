@@ -1,5 +1,8 @@
 import * as React from 'react';
+import { refreshIcon } from '@jupyterlab/ui-components';
 import { logDebug, logError } from './logging';
+
+const RefreshIcon = refreshIcon.bindprops({ tag: 'span' }).react;
 
 export type TodoSource = 'manual' | 'notebook';
 
@@ -25,6 +28,7 @@ export function TodoApp({ loadTodos, saveTodos }: ITodoAppProps) {
   const [initialized, setInitialized] = React.useState(false);
   const [editingId, setEditingId] = React.useState<string | null>(null);
   const [editText, setEditText] = React.useState('');
+  const [refreshing, setRefreshing] = React.useState(false);
 
   React.useEffect(() => {
     let cancelled = false;
@@ -157,11 +161,36 @@ export function TodoApp({ loadTodos, saveTodos }: ITodoAppProps) {
     [add]
   );
 
+  const refresh = React.useCallback(async () => {
+    setRefreshing(true);
+    try {
+      const next = await loadTodos();
+      setItems(next);
+      logDebug(`refreshed with ${next.length} todos`);
+    } catch (err) {
+      logError('failed to refresh todos', err);
+    } finally {
+      setRefreshing(false);
+    }
+  }, [loadTodos]);
+
   const hasItems = items.length > 0;
 
   return (
     <div className="jp-TodoApp">
-      <h3 className="jp-TodoApp-title">To-Do List</h3>
+      <div className="jp-TodoApp-header">
+        <h3 className="jp-TodoApp-title">To-Do List</h3>
+        <button
+          type="button"
+          className="jp-Button jp-mod-minimal jp-TodoApp-refreshButton"
+          onClick={refresh}
+          disabled={refreshing}
+          aria-label="Refresh"
+          title="refresh"
+        >
+          <RefreshIcon />
+        </button>
+      </div>
       <form className="jp-TodoApp-inputRow" onSubmit={handleSubmit}>
         <input
           aria-label="New task"
