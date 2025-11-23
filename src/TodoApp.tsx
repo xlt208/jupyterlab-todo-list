@@ -230,7 +230,10 @@ export function TodoApp({ loadTodos, saveTodos }: ITodoAppProps) {
                     <label htmlFor={checkboxId} className={labelClass}>
                       {item.text}
                       {item.originPath && (
-                        <span className="jp-TodoApp-origin" title={item.originPath}>
+                        <span
+                          className="jp-TodoApp-origin"
+                          title={item.originPath}
+                        >
                           Notebook: {item.originPath}
                         </span>
                       )}
