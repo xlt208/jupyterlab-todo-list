@@ -127,7 +127,7 @@ class NotebookTodoCache:
 
         async with self._lock:
             now = time.monotonic()
-            if self._cache and now - self._last_refresh < self._ttl:
+            if self._last_refresh and now - self._last_refresh < self._ttl:
                 return list(self._cache)
 
             future = self._refresh_future

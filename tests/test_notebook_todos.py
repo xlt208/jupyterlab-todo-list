@@ -4,6 +4,9 @@ import json
 import asyncio
 from pathlib import Path
 
+import pytest
+
+import jupyterlab_todo_list.notebook_todos as notebook_todos
 from jupyterlab_todo_list.notebook_todos import NotebookTodoCache, collect_notebook_todos
 
 
@@ -85,5 +88,26 @@ def test_cache_refreshes_after_ttl(tmp_path: Path) -> None:
 
         refreshed = await cache.get_items()
         assert refreshed[0]["text"] == "second"
+
+    asyncio.run(scenario())
+
+
+def test_cache_reuses_empty_results(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    async def scenario() -> None:
+        calls = {"count": 0}
+
+        def fake_collect(root_dir: str, logger=None):
+            calls["count"] += 1
+            return []
+
+        monkeypatch.setattr(
+            notebook_todos, "collect_notebook_todos", fake_collect)
+
+        cache = NotebookTodoCache(str(tmp_path), ttl_seconds=60)
+        first = await cache.get_items()
+        assert first == []
+        second = await cache.get_items()
+        assert second == []
+        assert calls["count"] == 1
 
     asyncio.run(scenario())
