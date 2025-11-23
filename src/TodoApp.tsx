@@ -1,11 +1,17 @@
 import * as React from 'react';
 import { logDebug, logError } from './logging';
 
+export type TodoSource = 'manual' | 'notebook';
+
 export type Todo = {
   id: string;
   text: string;
   done: boolean;
   completedAt?: number;
+  source?: TodoSource;
+  originPath?: string;
+  originCell?: number;
+  originLine?: number;
 };
 
 export interface ITodoAppProps {
@@ -176,18 +182,23 @@ export function TodoApp({ loadTodos, saveTodos }: ITodoAppProps) {
         <ul className="jp-TodoApp-list">
           {items.map(item => {
             const checkboxId = `todo-item-${item.id}`;
-            const itemClass = `jp-TodoApp-item${item.done ? ' is-done' : ''}`;
+            const isNotebookTodo = item.source === 'notebook';
+            const itemClass = `jp-TodoApp-item${item.done ? ' is-done' : ''}${
+              isNotebookTodo ? ' is-readonly' : ''
+            }`;
             const labelClass = `jp-TodoApp-itemLabel${
               item.done ? ' is-done' : ''
-            }`;
+            }${item.originPath ? ' has-origin' : ''}`;
             const isEditing = editingId === item.id;
+            const disableInteractions = isNotebookTodo || isEditing;
+            const showEditButton = !item.done && !isNotebookTodo;
             return (
               <li key={item.id} className={itemClass}>
                 <input
                   id={checkboxId}
                   type="checkbox"
                   checked={item.done}
-                  disabled={isEditing}
+                  disabled={disableInteractions}
                   onChange={() => toggle(item.id)}
                 />
                 {isEditing ? (
@@ -218,8 +229,13 @@ export function TodoApp({ loadTodos, saveTodos }: ITodoAppProps) {
                   <>
                     <label htmlFor={checkboxId} className={labelClass}>
                       {item.text}
+                      {item.originPath && (
+                        <span className="jp-TodoApp-origin" title={item.originPath}>
+                          Notebook: {item.originPath}
+                        </span>
+                      )}
                     </label>
-                    {!item.done && (
+                    {showEditButton && (
                       <button
                         type="button"
                         className="jp-Button jp-mod-minimal"
@@ -234,6 +250,7 @@ export function TodoApp({ loadTodos, saveTodos }: ITodoAppProps) {
                   type="button"
                   onClick={() => remove(item.id)}
                   className="jp-Button jp-mod-warn"
+                  disabled={isNotebookTodo}
                   aria-label={`Delete ${item.text}`}
                 >
                   Delete

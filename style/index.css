@@ -54,6 +54,17 @@
   word-break: break-word;
 }
 
+.jp-TodoApp-itemLabel.has-origin {
+  display: flex;
+  flex-direction: column;
+}
+
+.jp-TodoApp-origin {
+  font-size: var(--jp-ui-font-size0);
+  color: var(--jp-ui-font-color2);
+  line-height: 1.2;
+}
+
 .jp-TodoApp-editForm {
   display: flex;
   align-items: center;
@@ -69,6 +80,14 @@
 .jp-TodoApp-itemLabel.is-done {
   text-decoration: line-through;
   color: var(--jp-ui-font-color2);
+}
+
+.jp-TodoApp-item.is-readonly .jp-TodoApp-itemLabel {
+  cursor: default;
+}
+
+.jp-TodoApp-item.is-readonly input[type='checkbox'] {
+  cursor: default;
 }
 
 .jp-TodoApp-item .jp-Button {
