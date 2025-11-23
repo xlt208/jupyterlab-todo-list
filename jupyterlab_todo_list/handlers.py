@@ -43,11 +43,24 @@ class TodoItemsHandler(APIHandler):
     def _filter_manual(self, items: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         return [item for item in items if item.get("source") != "notebook"]
 
+    def _include_notebook_todos(self) -> bool:
+        """Return True if the request wants notebook TODO entries."""
+        raw_value = self.get_query_argument(
+            "include_notebook_todos", default=None)
+        if raw_value is None:
+            return True
+        normalized = raw_value.lower()
+        if normalized in {"0", "false", "off", "no"}:
+            return False
+        return True
+
     @web.authenticated
     async def get(self) -> None:
         """Return the stored todo items."""
         manual_items = self._filter_manual(self._read_items())
-        notebook_items = await self._todo_cache.get_items()
+        notebook_items: List[Dict[str, Any]] = []
+        if self._include_notebook_todos():
+            notebook_items = await self._todo_cache.get_items()
         items = manual_items + notebook_items
         self.finish({"items": items})
 

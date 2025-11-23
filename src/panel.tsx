@@ -109,8 +109,11 @@ export class TodoPanel extends Widget {
 
   private _loadFromServer = async (): Promise<Todo[] | null> => {
     try {
+      const queryParams = this._showNotebookTodos
+        ? undefined
+        : { include_notebook_todos: '0' };
       const response = await ServerConnection.makeRequest(
-        this._apiUrl(),
+        this._apiUrl(queryParams),
         { method: 'GET' },
         this._serverSettings
       );
@@ -133,8 +136,19 @@ export class TodoPanel extends Widget {
     }
   };
 
-  private _apiUrl(): string {
-    return URLExt.join(this._serverSettings.baseUrl, 'jlab-todo', 'items');
+  private _apiUrl(params?: Record<string, string>): string {
+    const base = URLExt.join(
+      this._serverSettings.baseUrl,
+      'jlab-todo',
+      'items'
+    );
+    if (!params || Object.keys(params).length === 0) {
+      return base;
+    }
+    const query = Object.entries(params)
+      .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
+      .join('&');
+    return `${base}?${query}`;
   }
 
   private _handleEndpointMissing(err: unknown): boolean {
