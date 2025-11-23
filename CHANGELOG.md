@@ -2,11 +2,17 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 1.0.0
+
+- Parse `# TODO:` markers from notebooks (excluding checkpoints) and show them in the panel with links back to their source.
+- Added a refresh button to re-scan notebooks on demand while keeping manual tasks synced to disk.
+- Added a "Show notebook TODOs" setting to let users enable or disable notebook imports.
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 0.3.0
 
 - Bundled a `jupyter_server_config.d` snippet so the REST handler is auto-registered after install—no manual server config step required.
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 0.2.0
 

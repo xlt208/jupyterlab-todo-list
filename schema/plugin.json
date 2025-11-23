@@ -3,6 +3,13 @@
   "title": "jupyterlab-todo-list",
   "description": "jupyterlab-todo-list settings.",
   "type": "object",
-  "properties": {},
+  "properties": {
+    "showNotebookTodos": {
+      "type": "boolean",
+      "title": "Show notebook TODOs",
+      "description": "Include tasks parsed from '# TODO:' cells inside notebooks.",
+      "default": true
+    }
+  },
   "additionalProperties": false
 }

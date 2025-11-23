@@ -22,6 +22,7 @@ export namespace TodoPanel {
     state: IStateDB;
     storageKey: string;
     serverSettings: ServerConnection.ISettings;
+    showNotebookTodos: boolean;
   }
 }
 
@@ -31,6 +32,7 @@ export class TodoPanel extends Widget {
   private _storageKey: string;
   private _serverSettings: ServerConnection.ISettings;
   private _endpointMissing = false;
+  private _showNotebookTodos: boolean;
 
   constructor(options: TodoPanel.IOptions) {
     super();
@@ -42,13 +44,12 @@ export class TodoPanel extends Widget {
     this._state = options.state;
     this._storageKey = options.storageKey;
     this._serverSettings = options.serverSettings;
+    this._showNotebookTodos = options.showNotebookTodos;
   }
 
   onAfterAttach(): void {
     this._root = createRoot(this.node);
-    this._root.render(
-      <TodoApp loadTodos={this._loadTodos} saveTodos={this._saveTodos} />
-    );
+    this._renderApp();
     logDebug('panel module attached');
   }
 
@@ -66,8 +67,9 @@ export class TodoPanel extends Widget {
   };
 
   private _saveTodos = async (todos: Todo[]): Promise<void> => {
+    const manualTodos = this._filterManualTodos(todos);
     try {
-      await this._state.save(this._storageKey, todos);
+      await this._state.save(this._storageKey, manualTodos);
     } catch (err) {
       logError('failed to save todos locally', err);
     }
@@ -77,7 +79,7 @@ export class TodoPanel extends Widget {
         this._apiUrl(),
         {
           method: 'PUT',
-          body: JSON.stringify({ items: todos }),
+          body: JSON.stringify({ items: manualTodos }),
           headers: { 'Content-Type': 'application/json' }
         },
         this._serverSettings
@@ -107,8 +109,11 @@ export class TodoPanel extends Widget {
 
   private _loadFromServer = async (): Promise<Todo[] | null> => {
     try {
+      const queryParams = this._showNotebookTodos
+        ? undefined
+        : { include_notebook_todos: '0' };
       const response = await ServerConnection.makeRequest(
-        this._apiUrl(),
+        this._apiUrl(queryParams),
         { method: 'GET' },
         this._serverSettings
       );
@@ -117,7 +122,8 @@ export class TodoPanel extends Widget {
       }
       const payload = (await response.json()) as { items?: Todo[] };
       if (Array.isArray(payload.items)) {
-        await this._state.save(this._storageKey, payload.items);
+        const manualItems = this._filterManualTodos(payload.items);
+        await this._state.save(this._storageKey, manualItems);
         return payload.items;
       }
       return [];
@@ -130,8 +136,22 @@ export class TodoPanel extends Widget {
     }
   };
 
-  private _apiUrl(): string {
-    return URLExt.join(this._serverSettings.baseUrl, 'jlab-todo', 'items');
+  private _apiUrl(params?: Record<string, string>): string {
+    const base = URLExt.join(
+      this._serverSettings.baseUrl,
+      'jlab-todo',
+      'items'
+    );
+    if (!params || Object.keys(params).length === 0) {
+      return base;
+    }
+    const query = Object.entries(params)
+      .map(
+        ([key, value]) =>
+          `${encodeURIComponent(key)}=${encodeURIComponent(value)}`
+      )
+      .join('&');
+    return `${base}?${query}`;
   }
 
   private _handleEndpointMissing(err: unknown): boolean {
@@ -146,5 +166,27 @@ export class TodoPanel extends Widget {
       return true;
     }
     return false;
+  }
+
+  private _filterManualTodos(todos: Todo[]): Todo[] {
+    return todos.filter(todo => todo.source !== 'notebook');
+  }
+
+  setShowNotebookTodos(showNotebookTodos: boolean): void {
+    if (this._showNotebookTodos === showNotebookTodos) {
+      return;
+    }
+    this._showNotebookTodos = showNotebookTodos;
+    this._renderApp();
+  }
+
+  private _renderApp(): void {
+    this._root?.render(
+      <TodoApp
+        loadTodos={this._loadTodos}
+        saveTodos={this._saveTodos}
+        showNotebookTodos={this._showNotebookTodos}
+      />
+    );
   }
 }

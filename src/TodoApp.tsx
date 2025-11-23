@@ -1,24 +1,39 @@
 import * as React from 'react';
+import { refreshIcon } from '@jupyterlab/ui-components';
 import { logDebug, logError } from './logging';
+
+const RefreshIcon = refreshIcon.bindprops({ tag: 'span' }).react;
+
+export type TodoSource = 'manual' | 'notebook';
 
 export type Todo = {
   id: string;
   text: string;
   done: boolean;
   completedAt?: number;
+  source?: TodoSource;
+  originPath?: string;
+  originCell?: number;
+  originLine?: number;
 };
 
 export interface ITodoAppProps {
   loadTodos: () => Promise<Todo[]>;
   saveTodos: (todos: Todo[]) => Promise<void>;
+  showNotebookTodos: boolean;
 }
 
-export function TodoApp({ loadTodos, saveTodos }: ITodoAppProps) {
+export function TodoApp({
+  loadTodos,
+  saveTodos,
+  showNotebookTodos
+}: ITodoAppProps) {
   const [items, setItems] = React.useState<Todo[]>([]);
   const [text, setText] = React.useState('');
   const [initialized, setInitialized] = React.useState(false);
   const [editingId, setEditingId] = React.useState<string | null>(null);
   const [editText, setEditText] = React.useState('');
+  const [refreshing, setRefreshing] = React.useState(false);
 
   React.useEffect(() => {
     let cancelled = false;
@@ -151,11 +166,47 @@ export function TodoApp({ loadTodos, saveTodos }: ITodoAppProps) {
     [add]
   );
 
-  const hasItems = items.length > 0;
+  const refresh = React.useCallback(async () => {
+    setRefreshing(true);
+    try {
+      const next = await loadTodos();
+      setItems(next);
+      logDebug(`refreshed with ${next.length} todos`);
+    } catch (err) {
+      logError('failed to refresh todos', err);
+    } finally {
+      setRefreshing(false);
+    }
+  }, [loadTodos]);
+
+  const visibleItems = React.useMemo(
+    () =>
+      showNotebookTodos
+        ? items
+        : items.filter(item => item.source !== 'notebook'),
+    [items, showNotebookTodos]
+  );
+
+  const hasItems = visibleItems.length > 0;
 
   return (
     <div className="jp-TodoApp">
-      <h3 className="jp-TodoApp-title">To-Do List</h3>
+      <div className="jp-TodoApp-header">
+        <h3 className="jp-TodoApp-title">To-Do List</h3>
+        <button
+          type="button"
+          className="jp-Button jp-mod-minimal jp-TodoApp-refreshButton"
+          onClick={refresh}
+          disabled={showNotebookTodos ? refreshing : true}
+          aria-label="Refresh"
+          title="refresh"
+          aria-hidden={showNotebookTodos ? undefined : true}
+          tabIndex={showNotebookTodos ? 0 : -1}
+          style={{ visibility: showNotebookTodos ? 'visible' : 'hidden' }}
+        >
+          <RefreshIcon />
+        </button>
+      </div>
       <form className="jp-TodoApp-inputRow" onSubmit={handleSubmit}>
         <input
           aria-label="New task"
@@ -174,20 +225,25 @@ export function TodoApp({ loadTodos, saveTodos }: ITodoAppProps) {
         </p>
       ) : (
         <ul className="jp-TodoApp-list">
-          {items.map(item => {
+          {visibleItems.map(item => {
             const checkboxId = `todo-item-${item.id}`;
-            const itemClass = `jp-TodoApp-item${item.done ? ' is-done' : ''}`;
+            const isNotebookTodo = item.source === 'notebook';
+            const itemClass = `jp-TodoApp-item${item.done ? ' is-done' : ''}${
+              isNotebookTodo ? ' is-readonly' : ''
+            }`;
             const labelClass = `jp-TodoApp-itemLabel${
               item.done ? ' is-done' : ''
-            }`;
+            }${item.originPath ? ' has-origin' : ''}`;
             const isEditing = editingId === item.id;
+            const disableInteractions = isNotebookTodo || isEditing;
+            const showEditButton = !item.done && !isNotebookTodo;
             return (
               <li key={item.id} className={itemClass}>
                 <input
                   id={checkboxId}
                   type="checkbox"
                   checked={item.done}
-                  disabled={isEditing}
+                  disabled={disableInteractions}
                   onChange={() => toggle(item.id)}
                 />
                 {isEditing ? (
@@ -218,8 +274,16 @@ export function TodoApp({ loadTodos, saveTodos }: ITodoAppProps) {
                   <>
                     <label htmlFor={checkboxId} className={labelClass}>
                       {item.text}
+                      {item.originPath && (
+                        <span
+                          className="jp-TodoApp-origin"
+                          title={item.originPath}
+                        >
+                          Notebook: {item.originPath}
+                        </span>
+                      )}
                     </label>
-                    {!item.done && (
+                    {showEditButton && (
                       <button
                         type="button"
                         className="jp-Button jp-mod-minimal"
@@ -234,6 +298,7 @@ export function TodoApp({ loadTodos, saveTodos }: ITodoAppProps) {
                   type="button"
                   onClick={() => remove(item.id)}
                   className="jp-Button jp-mod-warn"
+                  disabled={isNotebookTodo}
                   aria-label={`Delete ${item.text}`}
                 >
                   Delete
