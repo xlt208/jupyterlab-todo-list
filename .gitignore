@@ -5,6 +5,7 @@ node_modules/
 .eslintcache
 .stylelintcache
 *.egg-info/
+*.ipynb
 .ipynb_checkpoints
 *.tsbuildinfo
 jupyterlab_todo_list/labextension
