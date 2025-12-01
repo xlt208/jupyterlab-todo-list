@@ -33,7 +33,12 @@ export function TodoApp({
   const [initialized, setInitialized] = React.useState(false);
   const [editingId, setEditingId] = React.useState<string | null>(null);
   const [editText, setEditText] = React.useState('');
-  const [refreshing, setRefreshing] = React.useState(false);
+  const [refreshState, setRefreshState] = React.useState<
+    'idle' | 'refreshing' | 'completed'
+  >('idle');
+  const refreshCompletionTimeout = React.useRef<ReturnType<
+    typeof setTimeout
+  > | null>(null);
 
   React.useEffect(() => {
     let cancelled = false;
@@ -65,6 +70,15 @@ export function TodoApp({
     }
     void saveTodos(items);
   }, [items, initialized, saveTodos]);
+
+  React.useEffect(() => {
+    return () => {
+      if (refreshCompletionTimeout.current) {
+        clearTimeout(refreshCompletionTimeout.current);
+        refreshCompletionTimeout.current = null;
+      }
+    };
+  }, []);
 
   const add = React.useCallback(() => {
     const trimmed = text.trim();
@@ -167,15 +181,29 @@ export function TodoApp({
   );
 
   const refresh = React.useCallback(async () => {
-    setRefreshing(true);
+    if (refreshCompletionTimeout.current) {
+      clearTimeout(refreshCompletionTimeout.current);
+      refreshCompletionTimeout.current = null;
+    }
+    setRefreshState('refreshing');
+    let succeeded = false;
     try {
       const next = await loadTodos();
       setItems(next);
       logDebug(`refreshed with ${next.length} todos`);
+      succeeded = true;
     } catch (err) {
       logError('failed to refresh todos', err);
     } finally {
-      setRefreshing(false);
+      if (succeeded) {
+        setRefreshState('completed');
+        refreshCompletionTimeout.current = setTimeout(() => {
+          setRefreshState('idle');
+          refreshCompletionTimeout.current = null;
+        }, 1200);
+      } else {
+        setRefreshState('idle');
+      }
     }
   }, [loadTodos]);
 
@@ -188,6 +216,8 @@ export function TodoApp({
   );
 
   const hasItems = visibleItems.length > 0;
+  const isRefreshing = refreshState === 'refreshing';
+  const refreshCompleted = refreshState === 'completed';
 
   return (
     <div className="jp-TodoApp">
@@ -197,15 +227,19 @@ export function TodoApp({
           type="button"
           className="jp-Button jp-mod-minimal jp-TodoApp-refreshButton"
           onClick={refresh}
-          disabled={showNotebookTodos ? refreshing : true}
+          disabled={showNotebookTodos ? isRefreshing : true}
           aria-label="Refresh"
           title="refresh"
           aria-hidden={showNotebookTodos ? undefined : true}
           tabIndex={showNotebookTodos ? 0 : -1}
           style={{ visibility: showNotebookTodos ? 'visible' : 'hidden' }}
         >
-          {refreshing ? (
+          {isRefreshing ? (
             <span className="jp-TodoApp-refreshSpinner" aria-hidden="true" />
+          ) : refreshCompleted ? (
+            <span className="jp-TodoApp-refreshSuccess" aria-hidden="true">
+              ✓
+            </span>
           ) : (
             <RefreshIcon />
           )}
