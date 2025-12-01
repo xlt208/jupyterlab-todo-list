@@ -33,8 +33,39 @@
   padding: 4px;
   line-height: 0;
   min-width: unset;
+  position: relative;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
+.jp-TodoApp-refreshButton .jp-icon3 {
+  width: 20px;
+  height: 20px;
+}
+
+.jp-TodoApp-refreshSpinner {
+  width: 18px;
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  border-top-color: var(--jp-brand-color1);
+  border-right-color: var(--jp-brand-color1);
+  border-left-color: var(--jp-layout-color3);
+  border-bottom-color: var(--jp-layout-color3);
+  display: inline-block;
+  flex: 0 0 auto;
+  box-sizing: border-box;
+  animation: jp-TodoApp-spin 0.9s linear infinite;
+}
+
+@keyframes jp-TodoApp-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
 .jp-TodoApp-inputRow {
   display: flex;
   gap: 8px;

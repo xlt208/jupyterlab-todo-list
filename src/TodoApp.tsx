@@ -204,7 +204,11 @@ export function TodoApp({
           tabIndex={showNotebookTodos ? 0 : -1}
           style={{ visibility: showNotebookTodos ? 'visible' : 'hidden' }}
         >
-          <RefreshIcon />
+          {refreshing ? (
+            <span className="jp-TodoApp-refreshSpinner" aria-hidden="true" />
+          ) : (
+            <RefreshIcon />
+          )}
         </button>
       </div>
       <form className="jp-TodoApp-inputRow" onSubmit={handleSubmit}>
