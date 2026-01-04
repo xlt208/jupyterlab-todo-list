@@ -51,7 +51,8 @@
   aspect-ratio: 1 / 1;
   border-radius: 50%;
   border: 2px solid transparent;
-  border-color: var(--jp-brand-color1) var(--jp-brand-color1) var(--jp-layout-color3) var(--jp-layout-color3);
+  border-color: var(--jp-brand-color1) var(--jp-brand-color1)
+    var(--jp-layout-color3) var(--jp-layout-color3);
   display: inline-block;
   flex: 0 0 auto;
   box-sizing: border-box;
