@@ -112,15 +112,32 @@
   word-break: break-word;
 }
 
-.jp-TodoApp-itemLabel.has-origin {
+.jp-TodoApp-itemContent {
   display: flex;
   flex-direction: column;
+  flex: 1 1 auto;
+  min-width: 0;
+  gap: 2px;
 }
 
-.jp-TodoApp-origin {
+.jp-TodoApp-originRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.jp-TodoApp-originPath {
   font-size: var(--jp-ui-font-size0);
   color: var(--jp-ui-font-color2);
   line-height: 1.2;
+  flex: 1 1 auto;
+  min-width: 0;
+  word-break: break-word;
+}
+
+.jp-TodoApp-actionButton {
+  min-width: 64px;
+  text-align: center;
 }
 
 .jp-TodoApp-editForm {
