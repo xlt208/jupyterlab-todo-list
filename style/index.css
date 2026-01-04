@@ -140,6 +140,16 @@
   text-align: center;
 }
 
+.jp-TodoApp-actionButton:not(:disabled):hover {
+  filter: brightness(1.05);
+}
+
+.jp-TodoApp-actionButton.jp-mod-warn:not(:disabled):hover {
+  filter: none;
+  background-color: var(--jp-error-color1);
+  border-color: var(--jp-error-color1);
+}
+
 .jp-TodoApp-editForm {
   display: flex;
   align-items: center;
