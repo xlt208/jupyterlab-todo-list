@@ -28,6 +28,10 @@ The Python package is published on PyPI, and the labextension bundle is on npm a
 
 The panel reopens on the next Lab session and restores your last task list.
 
+### Notebook-derived tasks
+
+When the **Show notebook TODOs** setting is enabled (default), the extension scans `.ipynb` files for lines that match `# TODO:`. Each match appears in the panel as a read-only entry labeled with the originating notebook path. Use the refresh button to re-scan notebooks, and click **Open** on any imported task to jump directly to the source notebook. Toggle the setting off if you want the panel to show only manually entered items.
+
 ## Uninstall
 
 ```bash
