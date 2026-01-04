@@ -127,6 +127,19 @@ export function TodoApp({
   const remove = React.useCallback((id: string) => {
     setItems(prev => prev.filter(item => item.id !== id));
   }, []);
+  const confirmAndRemove = React.useCallback(
+    (todo: Todo) => {
+      const message = `Delete "${todo.text}"? This cannot be undone.`;
+      if (typeof window !== 'undefined') {
+        const confirmed = window.confirm(message);
+        if (!confirmed) {
+          return;
+        }
+      }
+      remove(todo.id);
+    },
+    [remove]
+  );
 
   const startEdit = React.useCallback((todo: Todo) => {
     if (todo.done) {
@@ -365,7 +378,7 @@ export function TodoApp({
                 ) : (
                   <button
                     type="button"
-                    onClick={() => remove(item.id)}
+                    onClick={() => confirmAndRemove(item)}
                     className="jp-Button jp-TodoApp-actionButton jp-mod-warn"
                     aria-label={`Delete ${item.text}`}
                   >
