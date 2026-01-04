@@ -1,8 +1,10 @@
 import * as React from 'react';
-import { refreshIcon } from '@jupyterlab/ui-components';
+import { refreshIcon, checkIcon, closeIcon } from '@jupyterlab/ui-components';
 import { logDebug, logError } from './logging';
 
 const RefreshIcon = refreshIcon.bindprops({ tag: 'span' }).react;
+const CheckIcon = checkIcon.bindprops({ tag: 'span' }).react;
+const CancelIcon = closeIcon.bindprops({ tag: 'span' }).react;
 
 export type TodoSource = 'manual' | 'notebook';
 
@@ -262,7 +264,7 @@ export function TodoApp({
             <span className="jp-TodoApp-refreshSpinner" aria-hidden="true" />
           ) : refreshCompleted ? (
             <span className="jp-TodoApp-refreshSuccess" aria-hidden="true">
-              ✓
+              <CheckIcon />
             </span>
           ) : (
             <RefreshIcon />
@@ -321,15 +323,22 @@ export function TodoApp({
                       aria-label={`Rename ${item.text}`}
                       className="jp-TodoApp-input jp-TodoApp-editInput"
                     />
-                    <button type="submit" className="jp-Button jp-mod-accept">
-                      Save
+                    <button
+                      type="submit"
+                      className="jp-Button jp-TodoApp-editActionButton jp-mod-accept jp-mod-minimal"
+                      aria-label="Save"
+                      title="Save"
+                    >
+                      <CheckIcon />
                     </button>
                     <button
                       type="button"
-                      className="jp-Button"
+                      className="jp-Button jp-TodoApp-editActionButton jp-mod-minimal"
                       onClick={cancelEdit}
+                      aria-label="Cancel"
+                      title="Cancel"
                     >
-                      Cancel
+                      <CancelIcon />
                     </button>
                   </form>
                 ) : (
