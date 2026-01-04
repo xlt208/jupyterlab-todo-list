@@ -6,6 +6,8 @@ Keep lightweight to-dos inside JupyterLab. This extension adds a persistent side
 
 https://github.com/user-attachments/assets/79b642f0-dd4c-4cae-82bf-9d56c32b3cc6
 
+> _This project’s code and docs are primarily authored with AI assistance; human maintainers review and ship the resulting changes._
+
 ## Requirements
 
 - JupyterLab >= 4.0.0
