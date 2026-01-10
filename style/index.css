@@ -64,13 +64,20 @@
   aspect-ratio: 1 / 1;
   border-radius: 50%;
   background-color: var(--jp-success-color1, var(--jp-brand-color1));
-  color: var(--jp-ui-inverse-font-color1, var(--jp-ui-font-color1));
+  color: var(--jp-layout-color1, #fff);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
-  font-weight: 700;
+  font-size: 0;
   line-height: 1;
+}
+
+.jp-TodoApp-refreshSuccess .jp-icon3 {
+  width: 14px;
+  height: 14px;
+  color: inherit;
+  fill: currentcolor;
+  stroke: currentcolor;
 }
 
 @keyframes jp-todo-app-spin {
@@ -112,15 +119,42 @@
   word-break: break-word;
 }
 
-.jp-TodoApp-itemLabel.has-origin {
+.jp-TodoApp-itemContent {
   display: flex;
   flex-direction: column;
+  flex: 1 1 auto;
+  min-width: 0;
+  gap: 2px;
 }
 
-.jp-TodoApp-origin {
+.jp-TodoApp-originRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.jp-TodoApp-originPath {
   font-size: var(--jp-ui-font-size0);
   color: var(--jp-ui-font-color2);
   line-height: 1.2;
+  flex: 1 1 auto;
+  min-width: 0;
+  word-break: break-word;
+}
+
+.jp-TodoApp-actionButton {
+  min-width: 64px;
+  text-align: center;
+}
+
+.jp-TodoApp-actionButton:not(:disabled):hover {
+  filter: brightness(1.05);
+}
+
+.jp-TodoApp-actionButton.jp-mod-warn:not(:disabled):hover {
+  filter: none;
+  background-color: var(--jp-error-color1);
+  border-color: var(--jp-error-color1);
 }
 
 .jp-TodoApp-editForm {
@@ -132,6 +166,20 @@
 
 .jp-TodoApp-editInput {
   flex: 1;
+}
+
+.jp-TodoApp-editActionButton {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.jp-TodoApp-editActionButton .jp-icon3 {
+  width: 18px;
+  height: 18px;
 }
 
 .jp-TodoApp-item.is-done .jp-TodoApp-itemLabel,

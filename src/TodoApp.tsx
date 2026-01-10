@@ -1,8 +1,10 @@
 import * as React from 'react';
-import { refreshIcon } from '@jupyterlab/ui-components';
+import { refreshIcon, checkIcon, closeIcon } from '@jupyterlab/ui-components';
 import { logDebug, logError } from './logging';
 
 const RefreshIcon = refreshIcon.bindprops({ tag: 'span' }).react;
+const CheckIcon = checkIcon.bindprops({ tag: 'span' }).react;
+const CancelIcon = closeIcon.bindprops({ tag: 'span' }).react;
 
 export type TodoSource = 'manual' | 'notebook';
 
@@ -21,12 +23,14 @@ export interface ITodoAppProps {
   loadTodos: () => Promise<Todo[]>;
   saveTodos: (todos: Todo[]) => Promise<void>;
   showNotebookTodos: boolean;
+  openTodoOrigin?: (todo: Todo) => Promise<void> | void;
 }
 
 export function TodoApp({
   loadTodos,
   saveTodos,
-  showNotebookTodos
+  showNotebookTodos,
+  openTodoOrigin
 }: ITodoAppProps) {
   const [items, setItems] = React.useState<Todo[]>([]);
   const [text, setText] = React.useState('');
@@ -39,6 +43,15 @@ export function TodoApp({
   const refreshCompletionTimeout = React.useRef<ReturnType<
     typeof setTimeout
   > | null>(null);
+  const handleOpenOrigin = React.useCallback(
+    (todo: Todo) => {
+      if (!openTodoOrigin) {
+        return;
+      }
+      void openTodoOrigin(todo);
+    },
+    [openTodoOrigin]
+  );
 
   React.useEffect(() => {
     let cancelled = false;
@@ -116,6 +129,19 @@ export function TodoApp({
   const remove = React.useCallback((id: string) => {
     setItems(prev => prev.filter(item => item.id !== id));
   }, []);
+  const confirmAndRemove = React.useCallback(
+    (todo: Todo) => {
+      const message = `Delete "${todo.text}"? This cannot be undone.`;
+      if (typeof window !== 'undefined') {
+        const confirmed = window.confirm(message);
+        if (!confirmed) {
+          return;
+        }
+      }
+      remove(todo.id);
+    },
+    [remove]
+  );
 
   const startEdit = React.useCallback((todo: Todo) => {
     if (todo.done) {
@@ -238,7 +264,7 @@ export function TodoApp({
             <span className="jp-TodoApp-refreshSpinner" aria-hidden="true" />
           ) : refreshCompleted ? (
             <span className="jp-TodoApp-refreshSuccess" aria-hidden="true">
-              ✓
+              <CheckIcon />
             </span>
           ) : (
             <RefreshIcon />
@@ -271,7 +297,7 @@ export function TodoApp({
             }`;
             const labelClass = `jp-TodoApp-itemLabel${
               item.done ? ' is-done' : ''
-            }${item.originPath ? ' has-origin' : ''}`;
+            }`;
             const isEditing = editingId === item.id;
             const disableInteractions = isNotebookTodo || isEditing;
             const showEditButton = !item.done && !isNotebookTodo;
@@ -297,30 +323,41 @@ export function TodoApp({
                       aria-label={`Rename ${item.text}`}
                       className="jp-TodoApp-input jp-TodoApp-editInput"
                     />
-                    <button type="submit" className="jp-Button jp-mod-accept">
-                      Save
+                    <button
+                      type="submit"
+                      className="jp-Button jp-TodoApp-editActionButton jp-mod-accept jp-mod-minimal"
+                      aria-label="Save"
+                      title="Save"
+                    >
+                      <CheckIcon />
                     </button>
                     <button
                       type="button"
-                      className="jp-Button"
+                      className="jp-Button jp-TodoApp-editActionButton jp-mod-minimal"
                       onClick={cancelEdit}
+                      aria-label="Cancel"
+                      title="Cancel"
                     >
-                      Cancel
+                      <CancelIcon />
                     </button>
                   </form>
                 ) : (
                   <>
-                    <label htmlFor={checkboxId} className={labelClass}>
-                      {item.text}
+                    <div className="jp-TodoApp-itemContent">
+                      <label htmlFor={checkboxId} className={labelClass}>
+                        {item.text}
+                      </label>
                       {item.originPath && (
-                        <span
-                          className="jp-TodoApp-origin"
-                          title={item.originPath}
-                        >
-                          Notebook: {item.originPath}
-                        </span>
+                        <div className="jp-TodoApp-originRow">
+                          <span
+                            className="jp-TodoApp-originPath"
+                            title={item.originPath}
+                          >
+                            Notebook: {item.originPath}
+                          </span>
+                        </div>
                       )}
-                    </label>
+                    </div>
                     {showEditButton && (
                       <button
                         type="button"
@@ -332,15 +369,31 @@ export function TodoApp({
                     )}
                   </>
                 )}
-                <button
-                  type="button"
-                  onClick={() => remove(item.id)}
-                  className="jp-Button jp-mod-warn"
-                  disabled={isNotebookTodo}
-                  aria-label={`Delete ${item.text}`}
-                >
-                  Delete
-                </button>
+                {isNotebookTodo ? (
+                  openTodoOrigin && (
+                    <button
+                      type="button"
+                      className="jp-Button jp-TodoApp-actionButton"
+                      onClick={() => handleOpenOrigin(item)}
+                      aria-label={
+                        item.originPath
+                          ? `Open ${item.originPath}`
+                          : `Open ${item.text}`
+                      }
+                    >
+                      Open
+                    </button>
+                  )
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => confirmAndRemove(item)}
+                    className="jp-Button jp-TodoApp-actionButton jp-mod-warn"
+                    aria-label={`Delete ${item.text}`}
+                  >
+                    Delete
+                  </button>
+                )}
               </li>
             );
           })}

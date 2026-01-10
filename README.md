@@ -6,6 +6,8 @@ Keep lightweight to-dos inside JupyterLab. This extension adds a persistent side
 
 https://github.com/user-attachments/assets/79b642f0-dd4c-4cae-82bf-9d56c32b3cc6
 
+> _This project’s code and docs are primarily authored with AI assistance; human maintainers review and ship the resulting changes._
+
 ## Requirements
 
 - JupyterLab >= 4.0.0
@@ -25,6 +27,10 @@ The Python package is published on PyPI, and the labextension bundle is on npm a
 3. Add tasks in the left side panel. Items are saved automatically.
 
 The panel reopens on the next Lab session and restores your last task list.
+
+### Notebook-derived tasks
+
+When the **Show notebook TODOs** setting is enabled (default), the extension scans `.ipynb` files for lines that match `# TODO:`. Each match appears in the panel as a read-only entry labeled with the originating notebook path. Use the refresh button to re-scan notebooks, and click **Open** on any imported task to jump directly to the source notebook. Toggle the setting off if you want the panel to show only manually entered items.
 
 ## Uninstall
 

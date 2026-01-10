@@ -65,7 +65,8 @@ const plugin: JupyterFrontEndPlugin<void> = {
           state,
           storageKey: TODO_STATE_KEY,
           serverSettings,
-          showNotebookTodos
+          showNotebookTodos,
+          commands
         });
         void tracker.add(panel);
       }

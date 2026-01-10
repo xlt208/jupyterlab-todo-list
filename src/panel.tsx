@@ -2,6 +2,7 @@ import { URLExt } from '@jupyterlab/coreutils';
 import { ServerConnection } from '@jupyterlab/services';
 import type { IStateDB } from '@jupyterlab/statedb';
 import { LabIcon } from '@jupyterlab/ui-components';
+import { CommandRegistry } from '@lumino/commands';
 import { Widget } from '@lumino/widgets';
 import { createRoot, Root } from 'react-dom/client';
 import { Todo, TodoApp } from './TodoApp';
@@ -23,6 +24,7 @@ export namespace TodoPanel {
     storageKey: string;
     serverSettings: ServerConnection.ISettings;
     showNotebookTodos: boolean;
+    commands: CommandRegistry;
   }
 }
 
@@ -33,6 +35,7 @@ export class TodoPanel extends Widget {
   private _serverSettings: ServerConnection.ISettings;
   private _endpointMissing = false;
   private _showNotebookTodos: boolean;
+  private _commands: CommandRegistry;
 
   constructor(options: TodoPanel.IOptions) {
     super();
@@ -45,6 +48,7 @@ export class TodoPanel extends Widget {
     this._storageKey = options.storageKey;
     this._serverSettings = options.serverSettings;
     this._showNotebookTodos = options.showNotebookTodos;
+    this._commands = options.commands;
   }
 
   onAfterAttach(): void {
@@ -171,6 +175,23 @@ export class TodoPanel extends Widget {
   private _filterManualTodos(todos: Todo[]): Todo[] {
     return todos.filter(todo => todo.source !== 'notebook');
   }
+  private _openNotebookOrigin = async (todo: Todo): Promise<void> => {
+    if (!todo.originPath) {
+      logDebug('Todo has no origin path; skipping open request', todo.id);
+      return;
+    }
+    try {
+      await this._commands.execute('docmanager:open', {
+        path: todo.originPath
+      });
+      logDebug(`opened notebook origin ${todo.originPath} for todo ${todo.id}`);
+    } catch (err) {
+      logError(
+        `failed to open notebook origin ${todo.originPath} for todo ${todo.id}`,
+        err
+      );
+    }
+  };
 
   setShowNotebookTodos(showNotebookTodos: boolean): void {
     if (this._showNotebookTodos === showNotebookTodos) {
@@ -186,6 +207,7 @@ export class TodoPanel extends Widget {
         loadTodos={this._loadTodos}
         saveTodos={this._saveTodos}
         showNotebookTodos={this._showNotebookTodos}
+        openTodoOrigin={this._openNotebookOrigin}
       />
     );
   }
