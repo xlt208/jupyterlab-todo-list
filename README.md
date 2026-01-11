@@ -4,7 +4,7 @@
 
 Keep lightweight to-dos inside JupyterLab. This extension adds a persistent side panel that lets you add, check off, and delete tasks while working in notebooks. Items are cached locally and synced to a small REST endpoint so they follow you between sessions.
 
-https://github.com/user-attachments/assets/79b642f0-dd4c-4cae-82bf-9d56c32b3cc6
+https://github.com/user-attachments/assets/0b5eb947-004a-4db1-a0c4-90ca70e178bc
 
 > _This project’s code and docs are primarily authored with AI assistance; human maintainers review and ship the resulting changes._
 
